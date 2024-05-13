@@ -17,6 +17,8 @@ output:
 library("xtable")         # for saving tables
 library("png")            # for reading in png files
 library("grid")           # for arranging plots
+remotes::install_github("wilkelab/ggtext")
+library("ggtext")         # for formatting ggplot2 text
 library("emmeans")        # for comparing models
 library("knitr")          # for knitting  
 library("RSQLite")        # for reading in participants.db file 
@@ -297,11 +299,10 @@ df.exp2.demographics %>%
 
 # Read the image file
 midpoint_creature = readPNG("../../figures/plot_additions/midpoint_creature.png")
-left_creature = readPNG("../../figures/plot_additions/midpoint_creature.png")
+
 
 # Create a raster object from the image
 raster_midpoint_creature = rasterGrob(midpoint_creature, interpolate=TRUE)
-raster_left_creature = rasterGrob(left_creature, interpolate=TRUE)
 
 ggplot(data = df.exp2.long,
        mapping = aes(x = property,
@@ -332,18 +333,31 @@ ggplot(data = df.exp2.long,
         axis.title.x = element_blank(),
         axis.text.x = element_text(size=16), 
         axis.title.y = element_text(size=18),  
-        axis.text.y = element_text(size=12),  
-        legend.text = element_text(size=14)) + 
+        axis.text.y = element_text(size=14),  
+        legend.text = element_text(size=16)) + 
   guides(fill = "none",
          color = "none",
          shape = guide_legend(override.aes = list(fill = "gray50"))) + 
   coord_flip() +
   annotation_custom(raster_midpoint_creature, xmin=4.35, xmax=5.3, ymin=-Inf, ymax=Inf) +
-  expand_limits(x = c(-Inf, 5.3)) 
+  expand_limits(x = c(-Inf, 5.3)) +
+scale_y_continuous(breaks = 1:7,
+                   labels = c(
+    "1" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleology_generics/master/figures/storyboard.png' width='20' height='20'>",
+    "2" = "2",
+    "3" = "3",
+    "4" = "unsure",
+    "5" = "5",
+    "6" = "6",
+    "7" = "definitely<br><img src='https://raw.githubusercontent.com/cicl-stanford/teleology_generics/master/figures/storyboard.png' width='20' height='20'>"
+  )) +
+  theme(axis.text.x = element_markdown())
  
 # ggsave(width = 5, height = 3, "../../figures/experiment2/exp2_property_by_condition_means.pdf")
 
 ```
+
+
 
 ### Plot of Actual Property Ratings vs Expected Property Ratings
 

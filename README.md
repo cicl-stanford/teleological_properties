@@ -1,6 +1,6 @@
 # Teleological properties
 
-This repository contains the experiments, data, analyses, and figures for the paper "Property types in generic and specific statements: Teleological properties matter more for categorization," by David Rose, Siying Zhang, Qi Han and Tobias Gerstenberg.
+This repository contains the experiments, data, analyses, and figures for the paper "Property types in generic and specific statements: Teleological properties matter more for categorization," by David Rose, Siying Zhang and Tobias Gerstenberg.
 
 The preprint can be found [here](UPDATEME)
 

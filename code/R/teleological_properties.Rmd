@@ -326,7 +326,7 @@ ggplot(data = df.exp2.long,
   scale_y_continuous(breaks = 1:7) +
   scale_shape_manual(values = c(21, 23)) + 
   ggtitle("What is this creature?") +
-  xlab("Property type of creature \n\ that differed") +
+  xlab("Property type that \n\ differed") +
   theme(plot.title = element_text(size=24, hjust = .5),  
         legend.title = element_blank(),
         legend.position = "bottom",
@@ -605,11 +605,6 @@ ggplot(data = df.llm,
                                              jitter.width = 0.1,
                                              jitter.height = 0.0),
              alpha = 0.2) + 
-  stat_summary(fun.data = "mean_cl_boot",
-               position = position_dodge(width = 0.5),
-               shape = 21,
-               color = "black",
-               size = .5) + 
   scale_fill_brewer(palette = "Set1") + 
   scale_color_brewer(palette = "Set1") + 
  # scale_y_continuous(breaks = 1:7) +
@@ -621,7 +616,7 @@ ggplot(data = df.llm,
         text = element_text(size = 18)) + 
   facet_wrap(~ model)
 
-ggsave(width = 8, height = 3, "../../figures/experiment2/bert_overall_property_means.pdf")
+ggsave(width = 8, height = 3, "../../figures/experiment2/bert_overall_probabilities.pdf")
 
 ```
 
@@ -714,7 +709,7 @@ ggplot(data = df.exp3.long,
   scale_y_continuous(breaks = 1:7) +
   scale_shape_manual(values = c(21, 23)) + 
   ggtitle("What is this creature?") +
-  xlab("Property type of creature \n\ that differed") +
+  xlab("Property type that \n\ differed") +
   theme(plot.title = element_text(size=24, hjust = .5),  
         legend.title = element_blank(),
         legend.position = "bottom",
@@ -913,7 +908,7 @@ ggplot(data = df.exp4.long,
   scale_y_continuous(breaks = 1:7) +
   scale_shape_manual(values = c(21, 23)) + 
   ggtitle("What is this creature?") +
-  xlab("Property type of creature \n\ that differed") +
+  xlab("Property type that \n\ differed") +
   theme(plot.title = element_text(size=24, hjust = .5),  
         legend.title = element_blank(),
         legend.position = "bottom",

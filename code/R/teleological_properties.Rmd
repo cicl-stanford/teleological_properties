@@ -23,6 +23,7 @@ library("emmeans")        # for comparing models
 library("knitr")          # for knitting  
 library("RSQLite")        # for reading in participants.db file 
 library("tidyjson")       # for reading in json data 
+library("entropy").       # for computing entropy
 library("brms")           # for Bayesian data analysis
 library("tidyverse")      # for everything else 
 
@@ -415,7 +416,7 @@ ggsave(filename = "../../figures/experiment2/exp2_heat_map.pdf",
 ```
 
 
-### Expected Property Selections for Each Property Type on Catgeorization Rating
+### Catgeorization Ratings for Each Individual Property
 
 ```{r fig.height=6, fig.width=10, message=FALSE, warning=FALSE}
 
@@ -468,11 +469,11 @@ df.exp2.property_categorization = df.exp2.behavior %>%
             df.exp2.purpose,
             df.exp2.social)
 
-df.plot = df.exp2.property_categorization %>% 
+df.each_property = df.exp2.property_categorization %>% 
   filter(categorization == "behavioral" & property_selected %in% c("jump", "chew", "swim", "run") | categorization == "biological" & property_selected %in% c("have hair", "have long legs", "are warm blooded", "have pointy ears") | categorization == "purpose" & property_selected %in% c("purify water", "aerate soil", "enable decomposition", "make honey") | categorization == "social" & property_selected %in% c("pair bond", "share food with group members", "follow the dominant group member", "cooperate with group members"))
 
 #give short labels to properties for plotting
-df.plot = df.plot %>% 
+df.each_property = df.each_property %>% 
   mutate(property_selected = str_replace_all(property_selected, "are warm blooded", "blood"),
          property_selected = str_replace_all(property_selected, "have hair", "hair"),
          property_selected = str_replace_all(property_selected, "have pointy ears", "ears"),
@@ -487,12 +488,12 @@ df.plot = df.plot %>%
          property_selected = str_replace_all(property_selected, "pair bond", "bond"))
 
 # rename property types
-df.plot = df.plot %>% 
+df.each_property = df.each_property %>% 
   mutate(property_changed = str_replace_all(property_changed, "behavioral", "behavior"),
          property_changed = str_replace_all(property_changed, "biological", "biology"))
 
 
-ggplot(data = df.plot,
+ggplot(data = df.each_property,
        mapping = aes(x = property_selected,
                      y = response,
                      group = property_changed,
@@ -535,6 +536,8 @@ ggplot(data = df.plot,
 ggsave(width = 10, height = 6, "../../figures/experiment2/exp2_expected_property_selections_for_property_type_ratings.pdf")
 
 ```
+
+
 ## Stats
 
 ### Bayesian Linear Mixed Model
@@ -589,6 +592,51 @@ df.llm = df.llm %>%
          model = str_replace_all(model, "roberta_large", "RoBERTa-large"))
 
 ```
+
+### Stats
+
+#### Correlate participant ratings for individual properties with LLM completions
+
+```{r}
+
+df.each_property = df.each_property %>% 
+  select(property_selected, categorization, response) %>% 
+  rename(property = property_selected, category = categorization) %>%         mutate(category = str_replace_all(category, "behavioral", "behavior"),
+                                                                                     category = str_replace_all(category, "biological", "biology")) %>% 
+                                                                                     
+  group_by(category, property) %>% 
+  summarise(mean = mean(response, na.rm = TRUE))
+
+df.llm = df.llm %>%
+  #give short labels to properties for plotting
+  mutate(property = str_replace_all(property, "warm blooded", "blood"),
+         property = str_replace_all(property, "pointy ears", "ears"),
+         property = str_replace_all(property, "long legs", "legs"),
+         property = str_replace_all(property, "enables decomposition", "decompose"),
+         property = str_replace_all(property, "purifies water", "purify"),
+         property = str_replace_all(property, "makes honey", "honey"),
+         property = str_replace_all(property, "aerates soil", "aerate"),
+         property = str_replace_all(property, "share food with group members", "share"),
+         property = str_replace_all(property, "cooperates with group members", "cooperate"),
+         property = str_replace_all(property, "follow dominant group member", "follow"),
+         property = str_replace_all(property, "pair bond", "bond")) %>% 
+  group_by(category, property, model) %>%
+  summarise(entropy_value = entropy(probability)) %>% 
+  pivot_wider(names_from = model,
+              values_from = entropy_value)
+
+df.diagnostic = df.each_property %>%
+  left_join(df.llm, by = c("category", "property")) %>% 
+  ungroup()
+
+##how to do the correlation?
+
+
+```
+
+
+
+
 ### Plots
 
 #### Overall Property Means by Model

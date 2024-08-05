@@ -13,20 +13,19 @@ output:
 # Load packages 
 
 ```{r, message=F}
-
 library("xtable")         # for saving tables
 library("png")            # for reading in png files
 library("grid")           # for arranging plots
-remotes::install_github("wilkelab/ggtext")
 library("ggtext")         # for formatting ggplot2 text
 library("emmeans")        # for comparing models
 library("knitr")          # for knitting  
 library("RSQLite")        # for reading in participants.db file 
 library("tidyjson")       # for reading in json data 
-library("entropy").       # for computing entropy
+library("entropy")        # for computing entropy
 library("brms")           # for Bayesian data analysis
+library("janitor")        # for cleaning variable names
+library("corrr")          # for correlations
 library("tidyverse")      # for everything else 
-
 ```
 
 # Global options
@@ -599,7 +598,7 @@ df.llm = df.llm %>%
 
 ```{r}
 
-df.each_property = df.each_property %>% 
+df.each_property.means = df.each_property %>% 
   select(property_selected, categorization, response) %>% 
   rename(property = property_selected, category = categorization) %>%         mutate(category = str_replace_all(category, "behavioral", "behavior"),
                                                                                      category = str_replace_all(category, "biological", "biology")) %>% 
@@ -607,7 +606,7 @@ df.each_property = df.each_property %>%
   group_by(category, property) %>% 
   summarise(mean = mean(response, na.rm = TRUE))
 
-df.llm = df.llm %>%
+df.llm2 = df.llm %>%
   #give short labels to properties for plotting
   mutate(property = str_replace_all(property, "warm blooded", "blood"),
          property = str_replace_all(property, "pointy ears", "ears"),
@@ -625,19 +624,54 @@ df.llm = df.llm %>%
   pivot_wider(names_from = model,
               values_from = entropy_value)
 
-df.diagnostic = df.each_property %>%
-  left_join(df.llm, by = c("category", "property")) %>% 
-  ungroup()
+df.each_property.means %>%
+  left_join(df.llm2, by = c("category", "property")) %>% 
+  ungroup() %>% 
+  clean_names() %>% 
+  select(-c(category, property)) %>% 
+  correlate() %>% 
+  shave() %>% 
+  fashion()
+```
 
-##how to do the correlation?
+#### Linear mixed effects model with diagnosticity and property type 
 
+```{r}
+df.regression = df.each_property %>% 
+  left_join(df.diagnostic,
+            by = c("property_selected" = "property",
+                   "property_changed" = "category")) %>% 
+  clean_names() %>% 
+  mutate(property_changed = factor(property_changed,
+                                   levels = c("behavior", "biology", "purpose", "social")),
+         property_purpose = ifelse(property_changed == "purpose", 1, 0))
 
+fit.brm_property_diagnosticity = brm(formula = response ~ 1 + property_changed + bert_large + (1 | participant),
+              data = df.regression,
+              seed = 1,
+              file = "cache/brm_property_diagnosticity")
 ```
 
 
 
-
 ### Plots
+
+#### Relationship between diagnosticity and participant ratings
+
+
+```{r}
+df.plot = df.diagnostic
+
+ggplot(data = df.plot,
+       mapping = aes(x = `BERT-large`,
+                     y = mean,
+                     color = category)) + 
+  geom_smooth(method = "lm",
+              se = FALSE,
+              color = "black") +
+  geom_point()
+```
+
 
 #### Overall Property Means by Model
 

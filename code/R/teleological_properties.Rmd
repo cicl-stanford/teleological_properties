@@ -1,6 +1,6 @@
 ---
 title: "Teleological Properties"
-author: "David Rose, Siying Zhang, Qi Han & Tobias Gerstenberg"
+author: "David Rose, Siying Zhang & Tobias Gerstenberg"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output:
   bookdown::html_document2:

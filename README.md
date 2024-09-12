@@ -1,8 +1,8 @@
-# Teleological properties
+# Teleological properties matter more in categorization
 
 This repository contains the experiments, data, analyses, and figures for the paper "Teleological properties matter more for categorization," by David Rose, Siying Zhang and Tobias Gerstenberg.
 
-The preprint can be found [here](UPDATEME)
+<!-- The preprint can be found [here](UPDATEME) -->
 
 __Contents__:
 - [Introduction](#Introduction)
